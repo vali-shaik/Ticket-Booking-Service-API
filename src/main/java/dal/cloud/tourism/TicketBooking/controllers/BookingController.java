@@ -5,7 +5,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -96,9 +98,25 @@ public class BookingController {
 		int seatsLeft = bookingRepository.getBookingAuditInfo(journeyId);			
 		return seatsLeft+"";
 	}
+	
+	@RequestMapping("/getBookingConfirmationMap")
+	public Map<String, String> getBookingConfirmationMap(@RequestParam("journeyId") int journeyId, @RequestParam("totalSeats") int totalSeats) {
+		
+		Map<String, String> map = new HashMap<String, String>();
+		
+		if(journeyId==-1) {
+			map.put("seatsLeft", "Error");
+			return map;
+		}
+		
+		int seatsLeft = bookingRepository.getBookingAuditInfo(journeyId);
+		map.put("seatsLeft", seatsLeft+"");
+		
+		return map;
+	}
 		
 	@RequestMapping("/addBooking")
-	public String addBookingInformation(@RequestParam("journeyId") int journeyId,
+	public Map<String, String> addBookingInformation(@RequestParam("journeyId") int journeyId,
 			@RequestParam("transactionMode") String transactionMode, @RequestParam("amount") double amount,
 			@RequestParam("totalSeats") int totalSeats, @RequestParam("cardNumber") String cardNumber, 
 			@RequestParam("holderName") String holderName, @RequestParam("mm") String mm, @RequestParam("yy") String yy, 
@@ -107,6 +125,7 @@ public class BookingController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String userId = authentication.getName();
 		
+		Map<String, String> map = new HashMap<String, String>();
 		int month = Calendar.getInstance().get(Calendar.MONTH)+1;
 		
 		if(!cardNumber.equals("1111-1111-1111-1111") 
@@ -116,7 +135,8 @@ public class BookingController {
 				|| (Integer.parseInt(mm) < month+1 && Integer.parseInt(yy)<=20)
 				|| Integer.parseInt(yy) < 20 || Integer.parseInt(yy) > 25) {
 			
-			return "Invalid Card Details. Please try again!";
+			map.put("message", "Invalid Card Details. Please try again!");
+			return map;
 		}
 		
 		int seatsLeft = bookingRepository.getBookingAuditInfo(journeyId);
@@ -145,9 +165,11 @@ public class BookingController {
 			GmailService gmail = new GmailService(userId, (amount*1.15), timestamp, totalSeats, cardNumber, journey, source, destination);
 			gmail.sendMail();
 			
-			return "Booking Successful!";
+			map.put("message", "Booking Successful!");
+			return map;
 		} else {
-			return "No seats available! Please try again later.";
+			map.put("message", "No seats available! Please try again later.");
+			return map;
 		}
 	}
 }
