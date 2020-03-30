@@ -47,6 +47,7 @@ import dal.cloud.tourism.TicketBooking.utilities.GmailService;
 @RestController
 @RequestMapping("booking")
 public class BookingController {
+    //booking
 
 	@Autowired
 	BookingRepository bookingRepository;
