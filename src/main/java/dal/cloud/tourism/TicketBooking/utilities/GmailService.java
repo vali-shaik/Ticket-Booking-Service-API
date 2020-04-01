@@ -42,8 +42,9 @@ public class GmailService {
 	Journey journey;
 	String source;
 	String destination;
+	String mail;
 	
-	public GmailService(String userId, double amount, Timestamp timestamp, int totalSeats, String cardNumber, Journey journey, String source, String destination) {
+	public GmailService(String userId, double amount, Timestamp timestamp, int totalSeats, String cardNumber, Journey journey, String source, String destination, String email) {
 		this.userId = userId;
 		this.amt = amount+"";
 		this.timestamp = timestamp+"";
@@ -52,6 +53,7 @@ public class GmailService {
 		this.journey = journey;
 		this.source = source;
 		this.destination = destination;
+		this.mail = email;
 	}
 
 	public void sendMail() {
@@ -84,7 +86,7 @@ public class GmailService {
 
 			msg = new MimeMessage(session);
 			msg.setFrom(new InternetAddress("cloud.tourism.app@gmail.com", false));
-			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse("cloud.tourism.app@gmail.com"));
+			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail));
 			msg.setSubject("Booking Invoice for booking made on: "+ timestamp);
 			msg.setText("Dear customer,\nPlease find the booking invoice for your jouney from "+source+" to "+destination+" on "+ journey.date+".\nHAVE A SAFE JOURNEY!");
 			msg.setContent(mimeMultipart);

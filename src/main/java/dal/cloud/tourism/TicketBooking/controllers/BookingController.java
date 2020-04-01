@@ -121,7 +121,7 @@ public class BookingController {
 			@RequestParam("transactionMode") String transactionMode, @RequestParam("amount") double amount,
 			@RequestParam("totalSeats") int totalSeats, @RequestParam("cardNumber") String cardNumber, 
 			@RequestParam("holderName") String holderName, @RequestParam("mm") String mm, @RequestParam("yy") String yy, 
-			@RequestParam("cvv") String cvv) {
+			@RequestParam("cvv") String cvv,@RequestParam(value="email", defaultValue = "cloud.tourism.app@gmail.com") String email) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String userId = authentication.getName();
@@ -163,8 +163,11 @@ public class BookingController {
 			String source = routeRepository.getSourceNameByRouteById(journey.route_id);
 			String destination = routeRepository.getDestinationNameByRouteById(journey.route_id);
 			
-			GmailService gmail = new GmailService(userId, (amount*1.15), timestamp, totalSeats, cardNumber, journey, source, destination);
-			gmail.sendMail();
+			GmailService gmail = new GmailService(userId, (amount*1.15), timestamp, totalSeats, cardNumber, journey, source, destination, email);
+			
+			try {
+				gmail.sendMail();
+			}catch(Exception e) {}
 			
 			map.put("message", "Booking Successful!");
 			return map;
